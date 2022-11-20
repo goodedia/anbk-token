@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANBK - TOKEN</title>
+
+    <link rel="stylesheet" href="../lib/semantic-ui/components/button.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/container.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/dimmer.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/dropdown.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/form.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/header.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/icon.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/image.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/input.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/label.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/list.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/loader.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/menu.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/modal.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/reset.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/segment.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/tab.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/table.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/toast.min.css">
+    <link rel="stylesheet" href="../lib/semantic-ui/components/transition.min.css">
+
+    <style>
+        body {
+            background-color: #B4A5A5 !important;
+            padding-top: 1em;
+        }
+
+        #foot {
+            margin: 4em auto !important;
+        }
+
+        .info {
+            margin-top: 1em;
+            font-size: 9pt;
+        }
+
+        @media only screen and (max-width: 360px) {
+            .live-search {
+                max-width: 13em !important;
+            }
+        }
+
+        @media only screen and (max-width: 600px) {
+            .container {
+                padding: 0px !important;
+            }
+
+            body > .segment {
+                margin: 0px !important;
+                padding: 0px !important;
+            }
+
+            body > .segment > .segment {
+                margin: 0px !important;
+                padding: 0px !important;
+            }
+
+            #konfirmasi_modal {
+                bottom: 10em !important;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="root" class="ui vertical basic segment container">
+        <!-- load the app here -->
+    </div>
+    <div class="ui vertical basic segment container">
+        <div class="ui text menu mini">
+            <div class="header item">ANBK-Token-Info</div>
+            <div class="item active">V1</div>
+            <a class="item" href="https://instagram.com/edi.pra.setyo/">Developed By Edi Prasetyo</a>
+        </div>
+    </div>
+
+    <script src="../lib/jquery.min.js"></script>
+
+    <script src="../lib/semantic-ui/components/dimmer.min.js" defer></script>
+    <script src="../lib/semantic-ui/components/dropdown.min.js" defer></script>
+    <script src="../lib/semantic-ui/components/modal.min.js" defer></script>
+    <script src="../lib/semantic-ui/components/tab.min.js"></script>
+    <script src="../lib/semantic-ui/components/toast.min.js" defer></script>
+    <script src="../lib/semantic-ui/components/transition.min.js" defer></script>
+    
+    <script>
+        
+        var logged_in = false,
+            
+            api_url = '../api/',
+            api_token = 'hSjxy-MqvT2-B8AHE-fpCX',
+
+            user_id = '',
+
+            components_load_last = '',
+            components_data_id_last = '',
+
+            form_data_id_last = '';
+
+        if(localStorage.getItem("user_id") !== null){
+            logged_in = true;
+            user_id = localStorage.getItem("user_id");
+        }
+
+        if(logged_in == false){
+            components_load('login-form');
+        }
+        else{
+            components_load('panel');
+        }
+
+        function components_load(param, loader = 'root', data_id = 0 , func_next = null) {
+            var components_load_url = 'components/'+param+'.php';
+
+            if(loader == null){
+                loader = 'root';
+            }
+
+            if(data_id == null){
+                data_id = 0;
+            }
+
+            $.ajax({
+                url: components_load_url,
+                type: 'post',
+                data: {
+                    'view' : '1',
+                    'data_id': data_id,
+                    'user_id': user_id
+                },
+                beforeSend:function(){
+                    loading_start();
+                },
+                complete:function(){
+                    loading_end();
+                },
+                success: function(data) {
+                    components_load_last = param;
+                    components_data_id_last = data_id;
+
+                    $('#' + loader).html(data);
+
+                    if(func_next !== null){
+                        func_next();
+                    }
+                }
+            }).done(function() {
+
+            }).fail(function() {
+                pesan_tampil('0', 'Gagal load elemen.');
+            });
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        function loading_start(){
+            $('#root').addClass(' loading');
+        }
+
+        function loading_end(){
+            setTimeout(() => {
+                $('#root').removeClass(' loading');
+            }, 1000);
+        }
+
+
+        var pesan_kode_ref = {
+            '-' : {
+                'color' : '',
+                'icon' : 'info circle',
+                'title' : 'Info'
+            },
+            '0' : {
+                'color' : 'red',
+                'icon' : 'ban',
+                'title' : 'Gagal'
+            },
+            '1' : {
+                'color' : 'green',
+                'icon' : 'check circle',
+                'title' : 'Sukses'
+            },
+            '2' : {
+                'color' : 'yellow',
+                'icon' : 'exclamation triangle',
+                'title' : 'Perhatian'
+            }
+        };
+
+        function pesan_tampil(kode, pesan) {
+            var kelas = '',
+                ikon = 'info',
+                judul = 'info';
+
+            if(pesan.hasOwnProperty(kode)){
+                kelas = pesan_kode_ref[kode]['color'];
+                ikon = pesan_kode_ref[kode]['icon'];
+                judul = pesan_kode_ref[kode]['title'];
+            }
+
+            $('body').toast({
+                class: kelas,
+                showIcon: ikon,
+                title: judul,
+                message: pesan,
+                showProgress: 'bottom'
+            });
+        }
+
+
+        function konfirmasi_tampil(jenis, data_id, judul, teks, act, fungsi_lanjut) {
+            $("#konfirmasi_header").html(judul);
+            $("#konfirmasi_isi").html(teks);
+            $("#konfirmasi_modal").modal({
+                blurring: true,
+                onApprove : function() {
+
+                    if(jenis == 'simple'){
+                        fungsi_lanjut();
+                    }
+                    else if(jenis == 'post'){
+                        $.ajax({
+                            url: api_url,
+                            type: 'post',
+                            dataType: 'json',
+                            data: {
+                                'view' : '1',
+                                'token' : api_token,
+                                'act' : act,
+                                'data_id' : data_id
+                            },
+                            beforeSend:function(){
+                                loading_start();
+                            },
+                            complete:function(){
+                                loading_end();
+                            },
+                            success: function(result) {
+                                var kode = result['code'],
+                                    pesan = result['message'];
+
+                                if(kode != '1'){
+                                    pesan_tampil(kode, pesan);
+                                }
+                                else {
+                                    form_data_id_last = '';
+
+                                    var data = result['data'];
+                                    form_submit_handle(act, data);
+                                }
+                            }
+                        }).done(function() {
+                            
+                        }).fail(function() {
+                            pesan_tampil('0', 'Gagal melakukan transfer data ke target API.');
+                        });
+                    }
+
+                }
+            }).modal('show');
+        }
+
+
+        function form_submit(act, form_id) {
+            $.ajax({
+                url: api_url,
+                type: 'post',
+                dataType: 'json',
+                data: 
+                    $('#' + form_id).serialize() + 
+                    "&token=" + api_token + 
+                    "&act=" + act +
+                    "&user_id=" + user_id
+                ,
+                beforeSend:function(){
+                    loading_start();
+                },
+                complete:function(){
+                    loading_end();
+                },
+                success: function(result) {
+                    var kode = result['code'],
+                        pesan = result['message'];
+                    
+                    if(kode != '1'){
+                        pesan_tampil(kode, pesan);
+                    }
+                    else {
+                        var data = result['data'];
+                        
+                        form_submit_handle(act, data);
+                    }
+                }
+            }).done(function() {
+                
+            }).fail(function() {
+                pesan_tampil('0', 'Gagal submit data ke server.');
+            });
+        }
+
+
+        function form_submit_handle(act, data) {
+            var fn_name = 'form_submit_' + act.replaceAll('-', '_') + '_handle';
+            window[fn_name](data);
+        }
+
+
+        function get_data_handle(param, data) {
+            var fn_name = 'get_data_' + param.replaceAll('-', '_') + '_handle';
+            window[fn_name](data);
+        }
+        
+
+
+
+        function logout(){
+            konfirmasi_tampil('simple', user_id, 'Yakin ingin logout ?', 'Anda akan keluar dari sistem dan perlu login ulang jika ingin membuka menu kembali.', null, logout_process);
+        }
+
+        function logout_process() {
+            localStorage.removeItem("user_id");
+            pesan_tampil('-', 'Logout berhasil.');
+            page_reload();
+        }
+
+        function page_reload() {
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 1000);
+        }
+
+
+
+
+
+        function get_data(param, data_id = 0) {
+            var act = param + '-get';
+            
+            $.ajax({
+                url: api_url,
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    'view' : '1',
+                    'token' : api_token,
+                    'act' : act,
+                    'data_id' : data_id
+                },
+                beforeSend:function(){
+                    loading_start();
+                },
+                complete:function(){
+                    loading_end();
+                },
+                success: function(result) {
+                    var kode = result['code'],
+                        pesan = result['message'];
+                    
+                    if(kode !== '1'){
+                        pesan_tampil(kode, pesan);
+                    }
+                    else{
+                        components_data_id_last = data_id;
+                        var data = result['data'];
+                        get_data_handle(param, data);
+                    }
+                }
+            }).done(function() {
+                
+            }).fail(function() {
+                pesan_tampil('0', 'Gagal melakukan transfer data ke target API.');
+            });
+        }
+
+
+        function reload_data() {
+            if(components_load_last == ''){
+                pesan_tampil('2', 'Tidak ada data yang diload sebelumnya.');
+                return false;
+            }
+
+            get_data(components_load_last, components_data_id_last);
+        }
+
+
+        function load_form(param, data_id) {
+            var text_data = param + '_data_place',
+                text_form = param + '_form_place',
+                data_place_visible = $('#' + text_data).is(':visible'),
+                form_place_visible = $('#' + text_form).is(':visible');
+            
+            if(data_place_visible == true){
+                $('#' + param + '_data_place').transition('drop');
+            }
+
+            if(form_place_visible == false){
+                $('#' + param + '_form_place').transition('drop');
+            }
+
+            if(data_id !== form_data_id_last){
+                reset_form(param);
+                if(data_id == '0'){
+                    form_data_id_last = data_id;
+                }
+                else if(data_id !== '0'){
+                    param = param.replaceAll('_', '-');
+
+                    var act = param + '-get-one';
+
+                    $.ajax({
+                        url: api_url,
+                        type: 'post',
+                        dataType: 'json',
+                        data: {
+                            'view' : '1',
+                            'token' : api_token,
+                            'act' : act,
+                            'data_id' : data_id
+                        },
+                        beforeSend:function(){
+                            loading_start();
+                        },
+                        complete:function(){
+                            loading_end();
+                        },
+                        success: function(result) {
+                            var kode = result['code'],
+                                pesan = result['message'];
+                            
+                            if(kode !== '1'){
+                                pesan_tampil(kode, pesan);
+                            }
+                            else{
+                                form_data_id_last = data_id;
+                                var data = result['data'];
+                                
+                                form_submit_handle(act, data);
+                            }
+                        }
+                    }).done(function() {
+                        
+                    }).fail(function() {
+                        pesan_tampil('0', 'Gagal melakukan transfer data ke target API.');
+                    });
+                }
+                
+                
+            }
+        }
+
+        function close_form(param) {
+            var data_place_visible = $('#' + param + '_data_place').is(':visible'),
+                form_place_visible = $('#' + param + '_form_place').is(':visible');
+
+            if(form_place_visible == true){
+                $('#' + param + '_form_place').transition('drop');
+            }
+
+            if(data_place_visible == false){
+                $('#' + param + '_data_place').transition('drop');
+            }
+        }
+
+
+
+        function reset_form(param){
+            $('#form_' + param).trigger('reset');
+            $('#form_' + param + ' .dropdown').dropdown('clear');
+            $('#'+param+'_id').val('0');
+        }
+
+
+        
+
+
+
+
+
+
+
+
+        //string to delte from object class
+        var deleter_class = [
+                'ui',
+                'icon',
+                'fluid',
+                'fld',
+                'input',
+                'action',
+                'button',
+                'green',
+                'orange',
+                'deleter',
+                'live-search',
+                'pickFile',
+                'file-picker',
+                'file-picked',
+                'search-item',
+                'checkbox',
+                'checked',
+                'indeterminate',
+                'check-data',
+                'check-sub-data',
+                'toggle',
+                'hidden',
+                'right',
+                'left',
+                'floated',
+                'tambah_orang',
+                'daftar_orang',
+                'check-set',
+                ' '
+            ],
+            deleter_regexp = new RegExp(deleter_class.join('|'), 'g');
+
+        //live search in tabel or ajax data
+        $(document).on('tokenup', 'input.live-search', function(event){
+            var pref = $(this).attr('class'),
+                token = $(this).val(),
+                pjg = token.length,
+                number = event.tokenCode,
+                jml = 0;
+
+            pref = pref.replace(deleter_regexp, '');
+
+            var liveTarget = $('#result-'+pref).length;
+
+            if(liveTarget == 1){
+                jml = $('#result-'+pref+' tr:not(.not-found)').length;
+            }
+
+            if(number == 13){
+                event.preventDefault();
+
+                if(liveTarget == 1){
+                    if (parseInt(jml) < 2){
+                        pesan_tampil('-', 'Tidak ada data.');
+                    }
+                    else if(pjg < 3){
+                        pesan_tampil('-', 'Pencarian butuh minimal 3 karakter.');
+                    }
+                    else {
+                        liveSearchTable(pref, token);
+                    }
+                }
+            }
+            else if(number == 8){
+                if(pjg == 0){
+                    if(liveTarget == 1){
+                        if(parseInt(jml) > 0){
+                            $('#result-'+pref+' tr.not-found').hide();
+                            $('#result-'+pref+' tr:not(.not-found)').show();
+
+                            var child_visible = $('#result-'+pref+' td').find('.check-sub-data:visible'),
+                                jml_visible = child_visible.length,
+                                ada_submit = $('#submit_'+pref).length;
+
+                            if(parseInt(jml_visible) > 0){
+                                child_visible.checkbox('uncheck');
+                                $('.check-data.'+pref).checkbox('uncheck');
+                                if(ada_submit == '1'){
+                                    var adaDisabled = $('#submit_'+pref).hasClass('disabled');
+                                    if(adaDisabled == false){
+                                        $('#submit_'+pref).addClass(' disabled');
+                                        $('#terpilih_'+pref).val(0);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+
+        function liveSearchTable(pref, search) {
+            // Hide all table tbody rows
+            $('#result-'+pref+' tr').hide();
+
+            // Count total search result
+            var len = $('#result-'+pref+' tr:not(.not-found) td:contains("'+search+'")').length;
+
+            if(len > 0){
+                // Searching text in columns and show match row
+                $('#result-'+pref+' tr:not(.not-found) td:contains("'+search+'")').each(function(){
+                    $(this).closest('tr').show();
+                });
+            }
+            else{
+                $('#result-'+pref+' #kunci-cari-'+pref).text(search);
+                $('#result-'+pref+' tr.not-found').show();
+            }
+        }
+
+        // Case-insensitive searching (Note - remove the below script for Case sensitive search )
+        $.expr[":"].contains = $.expr.createPseudo(function(arg) {
+            return function( elem ) {
+                return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+            };
+        });
+
+    </script>
+</body>
+</html>
