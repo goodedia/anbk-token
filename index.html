@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOKEN ANBK</title>
+
+    <link rel="stylesheet" href="lib/semantic-ui/components/button.min.css">
+    <link rel="stylesheet" href="lib/semantic-ui/components/card.min.css">
+    <link rel="stylesheet" href="lib/semantic-ui/components/container.min.css">
+    <link rel="stylesheet" href="lib/semantic-ui/components/dimmer.min.css">
+    <link rel="stylesheet" href="lib/semantic-ui/components/form.min.css">
+    <link rel="stylesheet" href="lib/semantic-ui/components/header.min.css">
+    <link rel="stylesheet" href="lib/semantic-ui/components/icon.min.css">
+    <link rel="stylesheet" href="lib/semantic-ui/components/image.min.css">
+    <link rel="stylesheet" href="lib/semantic-ui/components/loader.min.css">
+    <link rel="stylesheet" href="lib/semantic-ui/components/menu.min.css">
+    <link rel="stylesheet" href="lib/semantic-ui/components/modal.min.css">
+    <link rel="stylesheet" href="lib/semantic-ui/components/reset.min.css">
+    <link rel="stylesheet" href="lib/semantic-ui/components/segment.min.css">
+    <link rel="stylesheet" href="lib/semantic-ui/components/toast.min.css">
+    <link rel="stylesheet" href="lib/semantic-ui/components/transition.min.css">
+
+    <style>
+        body {
+            background-color: #fafafa !important;
+        }
+
+        .info {
+            margin-top: 1em;
+            font-size: 9pt;
+        }
+
+        #token_text {
+            font-size: 64pt !important;
+            text-transform: uppercase;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .container {
+                padding: 0px !important;
+            }
+
+            body > .segment {
+                margin: 0px !important;
+                padding: 0px !important;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="root" class="ui vertical basic segment container">
+        <div class="ui text mini right floated menu">
+            <a class="item" href="admin/">Panel Admin</a>
+        </div>
+
+        <div class="ui block header top attached">
+            TOKEN ANBK
+        </div>
+        <div class="ui segment bottom attached">
+            <div class="ui huge header centered" id="token_text">
+                Loading..
+            </div>
+        </div>
+    </div>
+
+    <div class="ui vertical basic segment container">
+        <div class="ui text menu mini">
+            <div class="header item">ANBK-Token-Info</div>
+            <div class="item active">V1</div>
+            <a class="item" href="https://instagram.com/edi.pra.setyo/">Developed By Edi Prasetyo</a>
+        </div>
+    </div>
+
+    <script src="lib/jquery.min.js"></script>
+    <script src="lib/semantic-ui/components/dimmer.min.js" defer></script>
+    <script src="lib/semantic-ui/components/modal.min.js" defer></script>
+    <script src="lib/semantic-ui/components/toast.min.js" defer></script>
+    <script src="lib/semantic-ui/components/transition.min.js" defer></script>
+    
+    <script>
+        
+        var api_url = 'api/',
+            api_token = 'hSjxy-MqvT2-B8AHE-fpCX';
+
+        get_data('token');
+
+        setInterval(function(){
+            get_data('token');
+        }, 15000);
+
+
+        var pesan_kode_ref = {
+            '-' : {
+                'color' : '',
+                'icon' : 'info circle',
+                'title' : 'Info'
+            },
+            '0' : {
+                'color' : 'red',
+                'icon' : 'ban',
+                'title' : 'Gagal'
+            },
+            '1' : {
+                'color' : 'green',
+                'icon' : 'check circle',
+                'title' : 'Sukses'
+            },
+            '2' : {
+                'color' : 'yellow',
+                'icon' : 'exclamation triangle',
+                'title' : 'Perhatian'
+            }
+        };
+
+        function pesan_tampil(kode, pesan) {
+            var kelas = '',
+                ikon = 'info',
+                judul = 'info';
+
+            if(pesan.hasOwnProperty(kode)){
+                kelas = pesan_kode_ref[kode]['color'];
+                ikon = pesan_kode_ref[kode]['icon'];
+                judul = pesan_kode_ref[kode]['title'];
+            }
+
+            $('body').toast({
+                class: kelas,
+                showIcon: ikon,
+                title: judul,
+                message: pesan,
+                showProgress: 'bottom'
+            });
+        }
+
+        function page_reload() {
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 1000);
+        }
+
+
+
+
+        function get_data(param, data_id = 0) {
+            var act = param + '-get';
+            
+            $.ajax({
+                url: api_url,
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    'view' : '1',
+                    'token' : api_token,
+                    'act' : act,
+                    'data_id' : data_id
+                },
+                beforeSend:function(){
+                    
+                },
+                complete:function(){
+                    
+                },
+                success: function(result) {
+                    var kode = result['code'],
+                        pesan = result['message'];
+                    
+                    if(kode !== '1'){
+                        pesan_tampil(kode, pesan);
+                    }
+                    else{
+                        var data = result['data'];
+                        get_data_handle(param, data);
+                    }
+                }
+            }).done(function() {
+                
+            }).fail(function() {
+                pesan_tampil('0', 'Gagal melakukan transfer data ke target API.');
+            });
+        }
+
+        function get_data_handle(param, data) {
+            var fn_name = 'get_data_' + param.replaceAll('-', '_') + '_handle';
+            window[fn_name](data);
+        }
+
+
+        function get_data_token_handle(data) {
+            var token = data[0]['token'],
+                already = $('#token_text').text();
+
+            if(token !== already){
+                $('#token_text').text(token);
+            }
+        }
+
+    </script>
+</body>
+</html>
